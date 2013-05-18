@@ -144,6 +144,15 @@ SousChef.prototype.jobComplete = function(data) {
           data: data.data
         });
       });
+      
+      if (jobs[data.name].feeds.length === 0 &&
+          currentManagerSocket !== null) {
+        currentManagerSocket.sendMessage({
+          event: "jobComplete",
+          data: data
+        });
+        currentManagerSocket = null;
+      }
     }  
   } else { // bad
     feed(processingQueue[data.name][data.id]);
@@ -183,20 +192,34 @@ config.servers.forEach(function(server) {
   sousChefs.push(new SousChef(server));
 });
 
-var server = net.createServer();
+var 
+  server = net.createServer(),
+  currentManagerSocket = null;
 server.listen(7777);
 server.on('connection', function(socket) { 
     
     socket = new JsonSocket(socket); 
+    currentManagerSocket = socket;
+    
     socket.on('message', function(message) {
         switch (message.event)
         {
           case "feed" :
-            //console.log(JSON.stringify(message, null, 2));
             feed(message.data);
             break;
-          case "creatJob" :
+          case "createJob" :
             createJob(message.data); 
+            break; 
+          case "listJobs" :
+            var jobList = [];
+            for(var job in jobs) {
+              jobList.push(job);
+            }
+            console.dir(jobList);
+            socket.sendMessage({
+              event: "listJobs",
+              data: jobList
+            }); 
             break;
           default :
             console.log('failure');
