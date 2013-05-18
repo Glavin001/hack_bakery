@@ -1,9 +1,7 @@
 {
-  "links" : {
-    "file" : "jobs/links.js",
+  "log" : {
+    "file" : "jobs/consoleOut.js",
     "feeds" : [
-      "links",
-      "words"
     ]
   },
   "words" : {
