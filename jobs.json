@@ -1,0 +1,12 @@
+{
+  "links" : {
+    "file" : "jobs/links.js",
+    "feeds" : [
+      "links",
+      "words"
+    ]
+  },
+  "words" : {
+    "file" : "jobs/words.js"
+  }
+}
