@@ -54,7 +54,7 @@ var SousChef = function() {
 					console.log("Got job data! " + id);
 					
 					// Call the job with the specified data, and wait for it to call the callback
-					jobs[JobName](data, function(nextJob, data) {
+					jobs[JobName](data, function(data) {
 						// Build output to queue
 						var out = {
 							id: id,
@@ -62,9 +62,8 @@ var SousChef = function() {
 						};
 						
 						// If we have data and job to pass it to specfied
-						if (data && nextJob) {
+						if (data) {
 							// Append to output json
-							out.next = nextJob;
 							out.data = data;
 						}
 						
