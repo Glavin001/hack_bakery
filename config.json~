@@ -4,7 +4,9 @@
       "name": "Tim",
       "address": "192.168.2.112",
       "port": 777,
-      "jobs": "any"
+      "jobs": [
+        "words"
+      ]
     },
     {
       "name": "rPi 1",

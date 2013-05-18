@@ -12,7 +12,7 @@
     ]
   },
   "cats": {
-    "file": "jobs/cats.js",
+    "file": "jobs/hash.js",
     "feeds": [
       "log"
     ]

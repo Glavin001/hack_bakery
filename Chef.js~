@@ -166,7 +166,6 @@ SousChef.prototype.emit = function(event, data) {
 var createJob = function(data) {
 
   jobs[data.name] = data;
-  data.feeds = data.feeds || [];
   
   // ship all jobs to workers
   sousChefs.forEach(function(sousChef) {   
