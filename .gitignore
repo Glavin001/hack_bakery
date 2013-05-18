@@ -1,3 +1,5 @@
 nbproject/private/
 .DS_STORE
 node_modules/
+
+/nbproject
