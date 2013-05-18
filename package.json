@@ -1,0 +1,3 @@
+{ "name": "bakery"
+, "version" : "0.0.1"
+, "dependencies" : { "json-socket":"*", "jsdom":"*", "request":"*" } }
