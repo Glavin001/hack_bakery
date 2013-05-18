@@ -39,6 +39,7 @@ var getBody = function(uri, callback) {
 };
 
 // Local Test
+/*
 var body, wordCount, anchors;
 getBody('http://www.smu.ca', 
     function(body) {
@@ -53,18 +54,19 @@ getBody('http://www.smu.ca',
         });
     }
 );
+*/
 
-
-
-    /*
-var port = 777; //The same port that the server is listening on
-var host = '127.0.0.1';
+// Example usage
+var port = 7777; //The same port that the server is listening on
+var host = '192.168.2.113';
 var socket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
 socket.connect(port, host);
 socket.on('connect', function() { //Don't send until we're connected
-    socket.sendMessage({a: 5, b: 7});
+    socket.sendMessage({event:'feed', data: {name:'log', data:'Look behind you!'} });
+    /*
     socket.on('message', function(message) {
         console.log('The result is: '+message.result);
     });
+    */
+    
 });
-*/
