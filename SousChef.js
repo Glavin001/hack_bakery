@@ -12,6 +12,7 @@ var SousChef = function() {
 	var server = net.createServer();
 	server.listen(port);
 	server.on('connection', function(socket) { //This is a standard net.Socket
+		console.log('Chef Connected!');
 		socket = new JsonSocket(socket); //Now we've decorated the net.Socket to be a JsonSocket
 		socket.emit = function(event, data) {
 			socket.sendMessage({event: event, data: data});
@@ -54,7 +55,7 @@ var SousChef = function() {
 					console.log("Got job data! " + id);
 					
 					// Call the job with the specified data, and wait for it to call the callback
-					jobs[JobName](data, function(nextJob, data) {
+					jobs[JobName](data, function(data) {
 						// Build output to queue
 						var out = {
 							id: id,
@@ -62,9 +63,8 @@ var SousChef = function() {
 						};
 						
 						// If we have data and job to pass it to specfied
-						if (data && nextJob) {
+						if (data) {
 							// Append to output json
-							out.next = nextJob;
 							out.data = data;
 						}
 						
