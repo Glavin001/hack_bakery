@@ -22,8 +22,8 @@ var SousChef = function() {
 			
 			switch (message.event) {
 				case "createJob":
-					var JobName = message.name;
-					var JobScript = message.script;
+					var JobName = message.data.name;
+					var JobScript = message.data.script;
 
 					console.log("Got Job!");
 					
@@ -34,7 +34,7 @@ var SousChef = function() {
 				case "submitJob":
 					// Job Data Available
 					// Server pinged us to let us know a job is available with the specified name
-					var JobName = message.name;
+					var JobName = message.data.name;
 
 					console.log("Job Available: " + JobName);
 					
@@ -47,9 +47,9 @@ var SousChef = function() {
 					break;
 				case "requestJobData":
 					// Got job data
-					var JobName = message.name;
-					var id = message.id;
-					var data = message.data;
+					var JobName = message.data.name;
+					var id = message.data.id;
+					var data = message.data.data;
 					
 					console.log("Got job data! " + id);
 					
