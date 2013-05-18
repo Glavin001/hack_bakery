@@ -59,7 +59,8 @@ var SousChef = function() {
 						// Build output to queue
 						var out = {
 							id: id,
-							status: 0
+							status: 0,
+							name: JobName
 						};
 						
 						// If we have data and job to pass it to specfied
