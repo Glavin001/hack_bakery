@@ -12,6 +12,7 @@ var SousChef = function() {
 	var server = net.createServer();
 	server.listen(port);
 	server.on('connection', function(socket) { //This is a standard net.Socket
+		console.log('Chef Connected!');
 		socket = new JsonSocket(socket); //Now we've decorated the net.Socket to be a JsonSocket
 		socket.emit = function(event, data) {
 			socket.sendMessage({event: event, data: data});
