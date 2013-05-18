@@ -23,14 +23,21 @@ var SousChef = function() {
 			
 			switch (message.event) {
 				case "createJob":
-					var JobName = message.data.name;
-					var JobScript = message.data.script;
+					var jobList;
+					if (message.data instanceof Array) {
+						jobList = message.data;
+					} else {
+						jobList = [message.data];
+					}
+					jobList.forEach(function(job) {
+						var JobName = job.name;
+						var JobScript = job.script;
 
-					console.log("Got Job!");
-					
-					// For now I'm just going to eval to build the functions
-					jobs[JobName] = eval("(" + JobScript + ")") ;
-					
+						console.log("Got Job!");
+
+						// For now I'm just going to eval to build the functions
+						jobs[JobName] = eval("(" + JobScript + ")") ;
+					});
 					break;
 				case "submitJob":
 					// Job Data Available
@@ -40,6 +47,7 @@ var SousChef = function() {
 					console.log("Job Available: " + JobName);
 					
 					if (jobs[JobName]) {
+						console.log("Requesting data: " + JobName);
 						// Request the job data
 						socket.emit("requestJobData", {
 							name: JobName
