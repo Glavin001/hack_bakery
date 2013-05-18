@@ -1,10 +1,16 @@
 {
   "servers": [
     {
-      "name" : "Tim",
-      "address" : "192.168.2.112",
-      "port" : "777",
-      "jobs" : [
+      "name": "Tim",
+      "address": "192.168.2.112",
+      "port": 777,
+      "jobs": "any"
+    },
+    {
+      "name": "rPi 1",
+      "address": "192.168.2.56",
+      "port": 777,
+      "jobs": [
         "log"
       ]
     }

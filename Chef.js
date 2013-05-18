@@ -32,6 +32,33 @@ for (var jobName in jobs) {
   processingQueue[jobName] = [];
 }
 
+var feed = function(data) {
+  // add job to front of job queue
+  if (!jobQueue[data.name]) {
+    jobQueue[data.name] = [];
+  }
+  jobQueue[data.name] = [data.data].concat(jobQueue[data.name]);
+  
+  // notify each SousChef a job has arrived
+  sousChefs.forEach(function(sousChef) {
+    if (sousChef.jobs instanceof Array) {
+      sousChef.jobs.forEach(function(job) {
+        if (job === data.name) {
+          console.log('feeding job [' + data.name + '] to [' + sousChef.name + ']');
+          sousChef.emit("submitJob", {
+            name: data.name
+          });
+        }
+      });
+    } else if (sousChef.jobs === "any") {
+        console.log('feeding job [' + data.name + '] to [' + sousChef.name + ']');
+        sousChef.emit("submitJob", {
+          name: data.name
+        });
+    }
+  });
+};
+
 var SousChef = function(_server) {
   var me = this;
   
@@ -58,17 +85,31 @@ var SousChef = function(_server) {
   
   this.socket.on('connect', function() {
     
-    console.log('---connected to client.');
-  
-    me.jobs.forEach(function(job) {
-      me.emit("createJob", { 
-        name: job,
-        script: jobs[job].script
+    console.log('--- connected to client.');
+    
+    // ship all jobs to workers   
+    if (me.jobs instanceof Array) {
+      me.jobs.forEach(function(job) {
+        me.emit("createJob", { 
+          name: job,
+          script: jobs[job].script
+        });
       });
-    });
+    } else if (me.jobs === "any") {
+      for (var job in jobs) { 
+        me.emit("createJob", {
+          name: job,
+          script: jobs[job].script
+        });
+      }
+    }
+    
   });
   
-  console.log("--created sue chef");
+  this.socket.on('error', function(error) {
+  });
+  
+  console.log("-- created sue chef");
 }
 
 SousChef.prototype.requestJobData = function(data) {
@@ -88,19 +129,62 @@ SousChef.prototype.requestJobData = function(data) {
       id: jobId,
       name: data.name,
       data: jobData
-      });
+    });
   }
 };
 
 SousChef.prototype.jobComplete = function(data) {
   console.log('job [' + data.name + ':' + data.id + '] completed by [' + this.name + ']');
-
-  console.log(JSON.stringify(data, null, 2));
+  
+  if (data.status === 0) { // good
+    if (data.data) {
+      jobs[data.name].feeds.forEach(function(job) {
+        feed({
+          name: job,
+          data: data.data
+        });
+      });
+      
+      if (jobs[data.name].feeds.length === 0 &&
+          currentManagerSocket !== null) {
+        currentManagerSocket.sendMessage({
+          event: "jobComplete",
+          data: data
+        });
+        currentManagerSocket = null;
+      }
+    }  
+  } else { // bad
+    feed(processingQueue[data.name][data.id]);
+  }
+  
+  // remove the job from the processing queue
+  delete processingQueue[data.name][data.id];
 };
 
 SousChef.prototype.emit = function(event, data) {
-  this.socket.sendMessage({ event: event, data: data });
+  if (!this.socket.isClosed()) {
+    this.socket.sendMessage({ event: event, data: data }, function(error) {
+      if (error) {
+        console.log('We burnt something : ' + error);
+      }
+    });
+  }
 };
+
+var createJob = function(data) {
+
+  jobs[data.name] = data;
+  data.feeds = data.feeds || [];
+  
+  // ship all jobs to workers
+  sousChefs.forEach(function(sousChef) {   
+    sousChef.emit("createJob", { 
+      name: data.name,
+      script: data.script
+    });
+  });
+}; 
 
 console.log("createing sue chefs");
 var sousChefs = [];
@@ -108,36 +192,34 @@ config.servers.forEach(function(server) {
   sousChefs.push(new SousChef(server));
 });
 
-var feed = function(data) {
-  // add job to front of job queue
-  if (!jobQueue[data.name]) {
-    jobQueue[data.name] = [];
-  }
-  jobQueue[data.name] = [data.data].concat(jobQueue[data.name]);
-  
-  sousChefs.forEach(function(sousChef) {
-    sousChef.jobs.forEach(function(job) {
-      if (job === data.name) {
-        console.log('feeding job [' + data.name + '] to [' + sousChef.name + ']');
-        sousChef.emit("submitJob", {
-          name: data.name
-        });
-      }
-    }); 
-  });
-};
-
-var server = net.createServer();
+var 
+  server = net.createServer(),
+  currentManagerSocket = null;
 server.listen(7777);
 server.on('connection', function(socket) { 
     
     socket = new JsonSocket(socket); 
+    currentManagerSocket = socket;
+    
     socket.on('message', function(message) {
         switch (message.event)
         {
           case "feed" :
-            //console.log(JSON.stringify(message, null, 2));
             feed(message.data);
+            break;
+          case "createJob" :
+            createJob(message.data); 
+            break; 
+          case "listJobs" :
+            var jobList = [];
+            for(var job in jobs) {
+              jobList.push(job);
+            }
+            console.dir(jobList);
+            socket.sendMessage({
+              event: "listJobs",
+              data: jobList
+            }); 
             break;
           default :
             console.log('failure');
