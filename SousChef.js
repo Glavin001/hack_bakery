@@ -29,15 +29,23 @@ var SousChef = function() {
 					} else {
 						jobList = [message.data];
 					}
-					jobList.forEach(function(job) {
-						var JobName = job.name;
-						var JobScript = job.script;
+					
+					console.log(jobList.length);
+
+					for (var i = 0; i < jobList.length; i++) {
+						var JobName = jobList[i].name;
+						var JobScript = jobList[i].script;
 
 						console.log("Got Job!");
+						console.dir(jobList[i]);
 
-						// For now I'm just going to eval to build the functions
-						jobs[JobName] = eval("(" + JobScript + ")") ;
-					});
+						try {
+							// For now I'm just going to eval to build the functions
+							jobs[JobName] = eval("(" + JobScript + ")");
+						} catch (ex) {
+							console.dir(ex);
+						}
+					};
 					break;
 				case "submitJob":
 					// Job Data Available
