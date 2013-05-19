@@ -1,10 +1,20 @@
 {
   "log" : {
-    "file" : "jobs/consoleOut.js",
+    "file" : "jobs/log.js",
     "feeds" : [
     ]
   },
-  "words" : {
-    "file" : "jobs/words.js"
+  "reverse": {
+    "file": "jobs/reverse.js",
+    "feeds": [
+      "log",
+      "cats"
+    ]
+  },
+  "cats": {
+    "file": "jobs/cats.js",
+    "feeds": [
+      "log"
+    ]
   }
 }
